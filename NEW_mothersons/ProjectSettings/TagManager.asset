@@ -3,7 +3,11 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Left Hand
+  - Right Hand
+  - Undefected
+  - Defected
   layers:
   - Default
   - TransparentFX
