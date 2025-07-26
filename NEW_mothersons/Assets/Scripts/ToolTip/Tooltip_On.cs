@@ -6,14 +6,22 @@ public class GrabActivateObject : MonoBehaviour
     public GameObject targetObjectToToggle; // Object to activate/deactivate
     private XRGrabInteractable grabInteractable;
 
-    private void Awake()
+    private void OnEnable()
     {
         grabInteractable = GetComponent<XRGrabInteractable>();
-
-        // Register grab and release events
         grabInteractable.selectEntered.AddListener(OnGrabbed);
         grabInteractable.selectExited.AddListener(OnReleased);
     }
+
+    private void OnDisable()
+    {
+        if (grabInteractable != null)
+        {
+            grabInteractable.selectEntered.RemoveListener(OnGrabbed);
+            grabInteractable.selectExited.RemoveListener(OnReleased);
+        }
+    }
+
 
     private void OnGrabbed(SelectEnterEventArgs args)
     {
@@ -30,7 +38,10 @@ public class GrabActivateObject : MonoBehaviour
     private void OnDestroy()
     {
         // Unregister events to avoid memory leaks
-        grabInteractable.selectEntered.RemoveListener(OnGrabbed);
-        grabInteractable.selectExited.RemoveListener(OnReleased);
+        if (grabInteractable != null)
+        {
+            grabInteractable.selectEntered.RemoveListener(OnGrabbed);
+            grabInteractable.selectExited.RemoveListener(OnReleased);
+        }
     }
 }

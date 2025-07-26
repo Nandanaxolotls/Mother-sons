@@ -8,6 +8,8 @@ TagManager:
   - Right Hand
   - Undefected
   - Defected
+  - Good
+  - Childpart
   layers:
   - Default
   - TransparentFX

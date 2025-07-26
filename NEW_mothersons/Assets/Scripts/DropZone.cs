@@ -16,6 +16,13 @@ public class DropZone : MonoBehaviour
     public Color incorrectColor = Color.red;
     private Color originalColor;
 
+    [Header("Floating +1 Text (VR)")]
+    public GameObject floatingTextPrefabPositive;           // Assign the prefab
+    public GameObject floatingTextPrefabNegative;
+    public Transform playerCamera;                  // Assign the VR Camera (e.g. XR Origin ? Camera Offset ? Main Camera)
+                                                    //  public Transform worldTarget;                   // Optional: where it floats toward (like a score panel or UI board)
+    public Transform spawnPointTransform;
+
     private void Start()
     {
         if (zoneRenderer == null)
@@ -27,7 +34,7 @@ public class DropZone : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Defected") || other.CompareTag("Undefected"))
+        if (other.CompareTag("Defected") || other.CompareTag("Good"))
         {
             StartCoroutine(HandleDropObject(other.gameObject));
         }
@@ -51,12 +58,14 @@ public class DropZone : MonoBehaviour
             ScoreManager.instance.AddPoints(rewardPoints);
             Debug.Log("Correct drop! +" + rewardPoints);
             StartCoroutine(FlashZoneColor(correctColor));
+            ShowFloatingPositive();
         }
         else
         {
             ScoreManager.instance.AddPoints(penaltyPoints);
             Debug.Log("Incorrect drop! " + penaltyPoints);
             StartCoroutine(FlashZoneColor(incorrectColor));
+            ShowFloatingNegative();
         }
 
         Destroy(obj);
@@ -71,4 +80,70 @@ public class DropZone : MonoBehaviour
             zoneRenderer.material.color = originalColor;
         }
     }
+
+    public void ShowFloatingPositive()
+    {
+        StartCoroutine(FloatingTextAnimationPositive());
+    }
+
+    private IEnumerator FloatingTextAnimationPositive()
+    {
+        Vector3 spawnPosition = spawnPointTransform.position;
+
+        GameObject floatingText = Instantiate(floatingTextPrefabPositive, spawnPosition, Quaternion.identity);
+
+        // Make it face the player
+        floatingText.transform.LookAt(playerCamera);
+        floatingText.transform.Rotate(0, 180, 0);
+
+        Vector3 start = spawnPosition;
+        Vector3 end = start + Vector3.up * 0.5f;
+
+        float duration = 2f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            floatingText.transform.position = Vector3.Lerp(start, end, t);
+            yield return null;
+        }
+
+        Destroy(floatingText);
+    }
+
+
+    public void ShowFloatingNegative()
+    {
+        StartCoroutine(FloatingTextAnimationNegative());
+    }
+
+    private IEnumerator FloatingTextAnimationNegative()
+    {
+        Vector3 spawnPosition = spawnPointTransform.position;
+
+        GameObject floatingText = Instantiate(floatingTextPrefabNegative, spawnPosition, Quaternion.identity);
+
+        // Make it face the player
+        floatingText.transform.LookAt(playerCamera);
+        floatingText.transform.Rotate(0, 180, 0);
+
+        Vector3 start = spawnPosition;
+        Vector3 end = start + Vector3.up * 0.5f;
+
+        float duration = 2f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            floatingText.transform.position = Vector3.Lerp(start, end, t);
+            yield return null;
+        }
+
+        Destroy(floatingText);
+    }
+
 }
